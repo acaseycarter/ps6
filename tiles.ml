@@ -33,7 +33,7 @@ module type TILEINFO =
   
 module MakeTilePuzzleDescription (T : TILEINFO)
        : (PUZZLEDESCRIPTION with type state = board
-                           and type move = direction) = 
+                             and type move = direction) = 
   struct
                                                
     (* states are board configurations *)
@@ -65,17 +65,20 @@ module MakeTilePuzzleDescription (T : TILEINFO)
     (* flatten -- Converts board array into a single list, for easier
        manipulation *)
     let flatten (rows : tile array array) : tile array = 
-      Array.fold_right (fun elt acc -> Array.append elt acc) rows (Array.make 0 EmptyTile)
+      Array.fold_right (fun elt acc -> Array.append elt acc)
+                       rows
+                       (Array.make 0 EmptyTile)
 
     (* Goal states are those boards where the tiles are sorted. *)
-    let is_goal (s: state) : bool = 
+    let is_goal (s : state) : bool = 
         let bs = s in
         let flat = flatten bs in
         let sorted = Array.copy flat in
         Array.sort tile_comp sorted; 
         flat = sorted
 
-    (* find_empty board -- Returns the (row, column) position of the empty tile on the board *)
+    (* find_empty board -- Returns the (row, column) position of the
+       empty tile on the board *)
     let find_empty board : int * int = 
         let find_elt_helper elt idx acc : int * bool = 
             match elt, acc with 
@@ -84,11 +87,11 @@ module MakeTilePuzzleDescription (T : TILEINFO)
             | _, _ -> (idx + 1, false) in
         let in_row = 
             Array.fold_left 
-                (fun acc elt -> acc || elt = EmptyTile) false in 
+              (fun acc elt -> acc || elt = EmptyTile) false in 
         let find_row = 
             Array.fold_left 
-                (fun acc elt -> find_elt_helper elt (fst acc) (snd acc)) 
-                    (0, false) in
+              (fun acc elt -> find_elt_helper elt (fst acc) (snd acc)) 
+              (0, false) in
         let find_col_helper elt acc = 
             let (row, col, acc) = acc in 
             match (in_row elt), acc with 
@@ -100,7 +103,6 @@ module MakeTilePuzzleDescription (T : TILEINFO)
                 (fun acc elt -> find_col_helper elt acc) (0, 0, false) in
         let (i, j, _) = find_rowcol board in
         (i,j)
-
 
     (* move_to_fun -- Helper function that converts moves in to
        functions to be executed on the position of the empty tile *)
@@ -130,19 +132,23 @@ module MakeTilePuzzleDescription (T : TILEINFO)
 
  
     (* Draws a tile puzzle for a given board. *)
-    let draw_tiles (tile_map : board) (height: int) : unit =
-      Array.iteri (fun y rows ->
-                   Array.iteri (fun x t ->
-                                G.draw_rect (x * cTILEWIDTH)
-                                            (height - cTILEWIDTH - y * cTILEWIDTH)
-                                            cTILEWIDTH
-                                            cTILEWIDTH;
-                                G.moveto (x * cTILEWIDTH + cTILEWIDTH / 2)
-                                         (height - cTILEWIDTH - y * cTILEWIDTH + cTILEWIDTH / 2);
-                                match t with
-                                | Tile n -> G.draw_string (string_of_int n)
-                                | EmptyTile -> ();
-                               ) rows) tile_map ;;
+    let draw_tiles (tile_map : board) (height : int) : unit =
+
+      let draw_tile (x : int) (y : int) (t : tile) : unit =
+        G.draw_rect (x * cTILEWIDTH)
+                    (height - cTILEWIDTH - y * cTILEWIDTH)
+                    cTILEWIDTH
+                    cTILEWIDTH;
+        G.moveto (x * cTILEWIDTH + cTILEWIDTH / 2)
+                 (height - cTILEWIDTH - y * cTILEWIDTH + cTILEWIDTH / 2);
+        match t with
+        | Tile n -> G.draw_string (string_of_int n)
+        | EmptyTile -> () in
+                                                     
+      tile_map
+      |> Array.iteri (fun y rows ->
+                      rows
+                      |> Array.iteri (fun x t -> draw_tile x y t)) ;;
       
     (* Helper function to delay frames. *)
     let rec delay (sec : float) : unit =
@@ -150,7 +156,7 @@ module MakeTilePuzzleDescription (T : TILEINFO)
       with Unix.Unix_error _ -> delay sec ;;
       
     (* Displays a full tile animation on the screen. *)
-    let display_tile (dims: int * int) (visited: 'a list) : unit = 
+    let display_tile (dims : int * int) (visited : 'a list) : unit = 
       G.open_graph "";
       let height, width = dims in
       G.resize_window (width * cTILEWIDTH) (height * cTILEWIDTH);
@@ -161,8 +167,8 @@ module MakeTilePuzzleDescription (T : TILEINFO)
                  G.synchronize ()) visited;
       ignore (G.read_key ()) ;;
       
-    let draw (visited: state list) (path: move list) : unit =
-      let rec moves_to_states (b: state) (path: move list) : state list =
+    let draw (_visited : state list) (path : move list) : unit =
+      let rec moves_to_states (b : state) (path : move list) : state list =
         let e = find_empty b in 
         let new_board = copy_board b in
         match path with
@@ -210,7 +216,7 @@ module MakeTilePuzzleDescription (T : TILEINFO)
       final_board
         
     (* A function for comparing two states: will be useful in puzzleplay.ml *)
-    let compare_states (s1: state) (s2: state) : int = 
+    let compare_states (s1 : state) (s2 : state) : int = 
         let b1 = flatten s1 in 
         let b2 = flatten s2 in
         compare b1 b2
@@ -220,7 +226,7 @@ module MakeTilePuzzleDescription (T : TILEINFO)
       Array.iter (fun t -> print_endline (tile_to_str t)) row
 
     (* A function for printing a state *)
-    let print_state (s: state) : unit = 
+    let print_state (s : state) : unit = 
         Array.iter print_row s; Printf.printf("\n")
-end
-  
+  end
+    

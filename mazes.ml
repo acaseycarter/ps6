@@ -83,7 +83,7 @@ module MakeMazePuzzleDescription (M : MAZEINFO)
                       | Wall -> false (* don't move onto a wall *)
                       | _ -> true) 
 
-    let compare_states (s1: state) (s2: state) : int = 
+    let compare_states (s1 : state) (s2 : state) : int = 
       compare s1 s2
 
     let print_state (i, j : state) : unit =
@@ -103,7 +103,9 @@ module MakeMazePuzzleDescription (M : MAZEINFO)
       List.fold_left execute_move initial_state path ;;
                        
     (* Draws the map for a given maze. *)
-    let draw_maze (maze_map : space array array) (elt_width : int) (elt_height : int) : unit =
+    let draw_maze (maze_map : space array array)
+                  (elt_width : int) (elt_height : int)
+                : unit =
       G.set_line_width cLINEWIDTH;
       Array.iteri (fun y m -> 
                    Array.iteri (fun x n -> 
@@ -113,22 +115,26 @@ module MakeMazePuzzleDescription (M : MAZEINFO)
                                ) m) maze_map ;;
       
     (* Draws the heat map for a given maze. *)
-    let draw_heat_map (visited: (int * int) list) (elt_width : int) (elt_height : int) : unit = 
+    let draw_heat_map (visited : (int * int) list)
+                      (elt_width : int) (elt_height : int)
+                    : unit =
+      
       let rec remove_dups lst =
         match lst with
         | [] -> []
-        | h::t -> h::(remove_dups (List.filter ((<>) h) t)) in
-      let unique_visited = remove_dups visited in
-      let incr = 200 / (List.length unique_visited) in
-      let red = ref 55 in
-      List.iter (fun (y, x) ->
-                 let c = G.rgb !red 0 0 in
-                 (red := !red + incr; G.synchronize ());
-                 draw_square c y x elt_width elt_height) unique_visited ;;
-      
+        | h :: t -> h :: (remove_dups (List.filter ((<>) h) t)) in
+
+      visited
+      |> remove_dups
+      |> List.iter (fun (y, x) ->
+                    draw_small_square cHILITECOLOR y x elt_width elt_height) ;;
+
     (* Displays a full maze animation on the screen. *)
-    let display_maze (dims: int * int) (maze_map : space array array)
-                     (visited: position list) (path: position list) (g: position) : unit = 
+    let display_maze (dims : int * int)
+                     (maze_map : space array array)
+                     (visited : position list)
+                     (path : position list)
+                     (goal : position) : unit = 
       G.open_graph "";
       G.resize_window cFRAMESIZE cFRAMESIZE;
       let height, width = (dims) in
@@ -138,14 +144,14 @@ module MakeMazePuzzleDescription (M : MAZEINFO)
                  G.clear_graph ();
                  draw_maze maze_map elt_width elt_height;
                  draw_heat_map visited elt_width elt_height;
-                 draw_square cGOALBGCOLOR (fst g) (snd g) elt_width elt_height;
-                 draw_circle cGOALCOLOR (fst g) (snd g) elt_width elt_height;
+                 draw_square cGOALBGCOLOR (fst goal) (snd goal) elt_width elt_height;
+                 draw_circle cGOALCOLOR (fst goal) (snd goal) elt_width elt_height;
                  draw_circle cLOCCOLOR y x elt_width elt_height;
                  delay cFRAMEDELAY) path;
       ignore (G.read_key ()) ;;
       
-    let draw (visited: state list) (path: move list) : unit =
-      let rec moves_to_states (origin: state) (path: move list) : state list =
+    let draw (visited : state list) (path : move list) : unit =
+      let rec moves_to_states (origin : state) (path : move list) : state list =
         match path with
         | [] -> [origin]
         | hd :: tl ->
