@@ -45,9 +45,8 @@ module type PUZZLESOLVER =
     (* solve () -- Returns a solution to the puzzle as a pair containing
        a list of moves and a list of states. The moves, when executed
        starting in the initial state, result in a goal state. A list
-       of all of the states visited in the solution process in order
-       of visiting (useful in visualizing the search process) is
-       provided as the returned state list. *)
+       of all of the states visited in the solution process in any order 
+       is provided as the returned state list. *)
     val solve : unit -> move list * state list
     (* draw states moves -- Graphically renders a solution given by the
        `moves` that was discovered through visiting the `states` *)

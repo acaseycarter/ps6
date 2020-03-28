@@ -119,7 +119,7 @@ module MakeQueueList (Element : sig type t end)
   priority (first to last to be taken) are given by s1 @ s2R (where
   s2R is the reversal of s2). Elements are added (in stack regime) to
   s2, and taken from s1. When s1 is empty, s2 is reversed onto s1. See
-  Section 15.2.2 in Chapter 15 for more information on this
+  Section 15.5.2 in Chapter 15 for more information on this
   technique. *)
 
 module MakeQueueStack (Element : sig type t end) 
