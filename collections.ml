@@ -138,7 +138,8 @@ creating and improving future assignments.
 ........................................................................
 Please give us an honest (if approximate) estimate of how long (in
 minutes) this problem set (in total, not just this file) took you to
-complete.
+complete. (If you worked with a partner, we're asking for how much time
+each of you (on average) spent on the problem set, not in total.)
 ......................................................................*)
 
 let minutes_spent_on_pset () : int =
